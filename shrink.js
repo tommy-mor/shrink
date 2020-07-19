@@ -1,6 +1,6 @@
 document.body.style.visible = "hidden";
 
-numberToKeep = 1000
+wordsThreshold = 0
 // node->word count.
 words = []
 costs = []
@@ -14,7 +14,10 @@ function recursiveCount(node) {
 }
 
 function nodeText(n) {
-	return [].reduce.call(n.childNodes, function(a, b) { return a + (b.nodeType === 3 ? b.textContent : ''); }, '');
+	//var a = [].reduce.call(n.childNodes, function(a, b) { return a + (b.nodeType === 3 ? b.textContent : ''); }, '');
+	var a = n.textContent
+	//console.log(a)
+	return a;
 }
 
 function nodeCost(n) {
@@ -35,19 +38,20 @@ function removeSmall(node) {
 		console.log("firstrun")
 		// if we have not already filled out this array
 		recursiveCount(node);
-		words.sort(function(a,b) { return nodeCost(b) - nodeCost(a)})
-		for (word of words) { word.backup_style = word.style; }
+		for (word of words) { word.cost = nodeCost(word); }
+		words.sort(function(a,b) { return b.cost - a.cost })
 
-		for (var i = 0; i < 10; i++) {
+		for (var i = 0; i <= 10; i++) {
 			console.log(words[i])
 		}
-		numberToKeep = words.length;
+		//numberToKeep = words[0].cost;
+		numberToKeep = 0
 	}
 
 	//console.log(words)
 
 	for (var i = 0; i < words.length; i++) {
-		if (i > numberToKeep) {
+		if (words[i].cost <= wordsThreshold) {
 			words[i].style.visibility = "hidden";
 		} else {
 			// words[i].style = words[i].backup_style;
@@ -64,18 +68,18 @@ console.log('uhhhhhhhhh')
 
 window.addEventListener("keydown", function(event) {
 	if (event.key == "Insert") {
-		console.log('zooming to level' + numberToKeep);
-		numberToKeep += 10;
+		wordsThreshold += 1;
+		console.log('zooming to level' + wordsThreshold);
 		removeSmall(document.body)
 	} else if (event.key == "Home") {
-		console.log('zooming to level' + numberToKeep);
-		numberToKeep -= 10;
+		wordsThreshold -= 1;
+		console.log('zooming to level' + wordsThreshold);
 		removeSmall(document.body)
 		event.preventDefault()
 	}
 
-	if (numberToKeep < 0) {
-		numberToKeep = 0
+	if (wordsThreshold < 0) {
+		wordsThreshold = 0
 	}
 })
 
